@@ -1,0 +1,88 @@
+
+select * from tbl_login_mstr;
+
+create procedure dbo.checklogin1
+@iuserid int,
+@strpassword varchar(20)
+as
+begin
+	declare @struser_status int;
+	if exists(select * from tbl_login_mstr where iuserid=@iuserid and strpassword=@strpassword)
+	begin
+			if exists(select * from  tbl_login_mstr where iuserid=@iuserid and strpassword=@strpassword and struser_status=0)
+			begin
+				select '1'
+			end
+			else 
+			begin
+				select '0'
+			end
+	end
+	else
+	begin
+			select '2'
+	end	
+end
+
+create procedure dbo.namelogin1
+@iuserid int
+as
+begin
+select iuserid,struser from tbl_login_mstr where iuserid=@iuserid;
+end
+
+create procedure dbo.oldpwd2
+@oldpd varchar(20),
+@userid int
+as
+begin
+	if exists(select * from tbl_login_mstr where iuserid=@userid and strpassword=@oldpd)
+	begin
+		select '1'
+	end
+	else
+	begin
+		select '0'
+	end
+end
+
+create procedure dbo.pwdchange2
+@userid1 int,
+@newpd varchar(20)
+as
+begin
+	update tbl_login_mstr set strpassword=@newpd where iuserid=@userid1;
+	update tbl_login_mstr set pwd_lastmodified=SYSDATETIME() where iuserid=@userid1;
+end
+
+
+create procedure dbo.createuser1
+@iuserid int,
+@empname varchar(50),
+@role varchar(20),
+@pwdd varchar(20)
+as
+begin
+	if exists(select * from tbl_login_mstr where iuserid=@iuserid)
+	begin
+		select '1'
+	end
+	else
+	begin
+		insert into tbl_login_mstr(iuserid,struser,strpassword,struser_role,struser_status,pwd_lastmodified) values(@iuserid,@empname,@pwdd,@role,0,SYSDATETIME());
+		select '0'
+	end
+end
+
+create procedure dbo.removeusergrid
+@struser_role varchar(20),
+@struser_status int,
+@iuserid int
+as
+begin
+	update tbl_login_mstr set struser_role = @struser_role,struser_status =@struser_status where iuserid= @iuserid ;
+end
+
+
+
+
